@@ -8,6 +8,8 @@
 		<relativePath>../hapi-deployable-pom/pom.xml</relativePath>
 	</parent>
 
+	<groupId>cz.datlowe</groupId>
+	<version>2.3-SNAPSHOT</version>
 	<artifactId>hapi-fhir-jpaserver-base</artifactId>
 	<packaging>jar</packaging>
 
