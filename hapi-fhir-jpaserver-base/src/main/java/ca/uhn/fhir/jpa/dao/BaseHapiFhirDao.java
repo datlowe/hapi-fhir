@@ -707,6 +707,8 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 			}
 		}
 
+		theEntity.setFhirVersion(myContext.getVersion().getVersion());
+
 		String encoded = myConfig.getResourceEncoding().newParser(myContext).encodeResourceToString(theResource);
 		theEntity.setResource(encoded);
 
