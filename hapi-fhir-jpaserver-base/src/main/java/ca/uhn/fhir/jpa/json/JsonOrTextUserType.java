@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
@@ -17,7 +18,7 @@ public class JsonOrTextUserType implements UserType {
 
 	@Override
 	public int[] sqlTypes() {
-		return new int[] { Types.JAVA_OBJECT};	
+		return new int[] { Types.JAVA_OBJECT };	
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -51,12 +52,21 @@ public class JsonOrTextUserType implements UserType {
 	public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session) 
 			throws HibernateException, SQLException 
 	{
+		
+		Dialect d = session.getFactory().getDialect();
+		
+		int sqlType = Types.VARCHAR;
+		
+		if (d instanceof PostgreSQL94DialectJson) {
+			sqlType = Types.OTHER;
+		}
+		
 		if (value == null) {
-			st.setNull(index, Types.VARCHAR);
+			st.setNull(index, sqlType);
 			return;
 		}
 
-		st.setObject(index, value, Types.VARCHAR);
+		st.setObject(index, value, sqlType);
 	}
 
 	@Override
