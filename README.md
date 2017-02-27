@@ -1,5 +1,9 @@
-hapi-fhir
+datlowe fork of hapi-fhir
 =========
+
+mainly for JPA server modifiaction - using JSONB postgres colument for resouce text
+
+
 
 HAPI FHIR - Java API for HL7 FHIR Clients and Servers
 
