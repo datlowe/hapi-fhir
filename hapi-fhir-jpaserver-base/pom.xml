@@ -353,10 +353,11 @@
 							<goal>create</goal>
 						</goals>
 						<configuration>
-							<dialect>org.hibernate.dialect.PostgreSQL94Dialect</dialect>
+							<dialect>ca.uhn.fhir.jpa.json.PostgreSQL94DialectJson</dialect>
 							<outputFile>${project.build.directory}/classes/ca/uhn/hapi/fhir/jpa/docs/database/persistence_create_postgres94.sql</outputFile>	
 						</configuration>
 					</execution>
+					<!-- 
 					<execution>
 						<id>mysql57</id>
 						<phase>process-classes</phase>
@@ -390,6 +391,7 @@
 							<outputFile>${project.build.directory}/classes/ca/uhn/hapi/fhir/jpa/docs/database/persistence_create_sqlserver2012.sql</outputFile>	
 						</configuration>
 					</execution>
+ 					-->					
 				</executions>
 			</plugin>
 			<plugin>

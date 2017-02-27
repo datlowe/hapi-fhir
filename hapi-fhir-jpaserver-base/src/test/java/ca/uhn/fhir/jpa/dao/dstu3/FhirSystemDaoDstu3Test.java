@@ -214,13 +214,8 @@ public class FhirSystemDaoDstu3Test extends BaseJpaDstu3SystemTest {
 			@Override
 			public ResourceTable doInTransaction(TransactionStatus theStatus) {
 				ResourceTable table = myEntityManager.find(ResourceTable.class, id.getIdPartAsLong());
-				table.setEncoding(ResourceEncodingEnum.JSON);
 				table.setIndexStatus(null);
-				try {
-					table.setResource("{\"resourceType\":\"FOO\"}".getBytes("UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-					throw new Error(e);
-				}
+				table.setResource("{\"resourceType\":\"FOO\"}");
 				myEntityManager.merge(table);
 				return null;
 			}

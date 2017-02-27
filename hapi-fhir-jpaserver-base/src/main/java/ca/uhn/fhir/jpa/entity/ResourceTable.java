@@ -531,7 +531,6 @@ public class ResourceTable extends BaseHasResource implements Serializable {
 		retVal.setTitle(getTitle());
 		retVal.setPublished(getPublished());
 		retVal.setUpdated(getUpdated());
-		retVal.setEncoding(getEncoding());
 		retVal.setFhirVersion(getFhirVersion());
 		retVal.setResource(getResource());
 		retVal.setDeleted(getDeleted());

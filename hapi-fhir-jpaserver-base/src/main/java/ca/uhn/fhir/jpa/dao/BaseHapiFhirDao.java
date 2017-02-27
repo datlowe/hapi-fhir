@@ -23,7 +23,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.io.UnsupportedEncodingException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,7 +70,6 @@ import org.hl7.fhir.instance.model.api.IPrimitiveType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 
 import ca.uhn.fhir.context.BaseRuntimeChildDefinition;
@@ -91,7 +89,6 @@ import ca.uhn.fhir.jpa.entity.BaseHasResource;
 import ca.uhn.fhir.jpa.entity.BaseResourceIndexedSearchParam;
 import ca.uhn.fhir.jpa.entity.BaseTag;
 import ca.uhn.fhir.jpa.entity.ForcedId;
-import ca.uhn.fhir.jpa.entity.ResourceEncodingEnum;
 import ca.uhn.fhir.jpa.entity.ResourceHistoryTable;
 import ca.uhn.fhir.jpa.entity.ResourceHistoryTag;
 import ca.uhn.fhir.jpa.entity.ResourceIndexedSearchParamCoords;
@@ -711,17 +708,7 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 		}
 
 		String encoded = myConfig.getResourceEncoding().newParser(myContext).encodeResourceToString(theResource);
-		ResourceEncodingEnum encoding = myConfig.getResourceEncoding();
-		theEntity.setEncoding(encoding);
-		theEntity.setFhirVersion(myContext.getVersion().getVersion());
-		switch (encoding) {
-		case JSON:
-			theEntity.setResource(encoded.getBytes(Charsets.UTF_8));
-			break;
-		case JSONC:
-			theEntity.setResource(GZipUtil.compress(encoded));
-			break;
-		}
+		theEntity.setResource(encoded);
 
 		Set<TagDefinition> allDefs = new HashSet<TagDefinition>();
 
@@ -1021,19 +1008,7 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <R extends IBaseResource> R toResource(Class<R> theResourceType, BaseHasResource theEntity, boolean theForHistoryOperation) {
-		String resourceText = null;
-		switch (theEntity.getEncoding()) {
-		case JSON:
-			try {
-				resourceText = new String(theEntity.getResource(), "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new Error("Should not happen", e);
-			}
-			break;
-		case JSONC:
-			resourceText = GZipUtil.decompress(theEntity.getResource());
-			break;
-		}
+		String resourceText = theEntity.getResource();
 
 		/*
 		 * Use the appropriate custom type if one is specified in the context
@@ -1055,7 +1030,7 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 			}
 		}
 		
-		IParser parser = theEntity.getEncoding().newParser(getContext(theEntity.getFhirVersion()));
+		IParser parser = getContext(theEntity.getFhirVersion()).newJsonParser();
 		R retVal;
 		try {
 			retVal = parser.parseResource(resourceType, resourceText);

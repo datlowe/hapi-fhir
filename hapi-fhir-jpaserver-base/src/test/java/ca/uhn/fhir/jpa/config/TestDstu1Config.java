@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import ca.uhn.fhir.jpa.dao.DaoConfig;
+import ca.uhn.fhir.jpa.json.DerbyTenSevenDialectJson;
 
 @Configuration
 @EnableTransactionManagement()
@@ -58,6 +59,7 @@ public class TestDstu1Config extends BaseJavaConfigDstu1 {
 		extraProperties.put("hibernate.format_sql", "false");
 		extraProperties.put("hibernate.show_sql", "false");
 		extraProperties.put("hibernate.hbm2ddl.auto", "update");
+		extraProperties.put("hibernate.dialect", DerbyTenSevenDialectJson.class.getName());
 		return extraProperties;
 	}
 
