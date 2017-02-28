@@ -12,7 +12,7 @@ public class DerbyTenSevenDialectJson extends DerbyTenSevenDialect {
 	public DerbyTenSevenDialectJson() {
 		super();
 		
-		this.registerColumnType(Types.JAVA_OBJECT, "LONG VARCHAR");		
+		this.registerColumnType(Types.JAVA_OBJECT, "CLOB");		
 	}
 
 }
