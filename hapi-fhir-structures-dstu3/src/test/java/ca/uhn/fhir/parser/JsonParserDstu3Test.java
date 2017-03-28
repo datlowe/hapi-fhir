@@ -22,6 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import org.hl7.fhir.dstu3.model.Address.AddressUseEnumFactory;
 import org.hl7.fhir.dstu3.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.dstu3.model.Bundle.BundleType;
 import org.hl7.fhir.dstu3.model.Condition.ConditionVerificationStatus;
-import org.hl7.fhir.dstu3.model.Conformance.UnknownContentCode;
+import org.hl7.fhir.dstu3.model.CapabilityStatement.UnknownContentCode;
 import org.hl7.fhir.dstu3.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.dstu3.model.Identifier.IdentifierUse;
 import org.hl7.fhir.dstu3.model.Observation.ObservationStatus;
@@ -690,7 +691,7 @@ public class JsonParserDstu3Test {
 	@Test
 	public void testEncodeExtensionInPrimitiveElement() {
 
-		Conformance c = new Conformance();
+		CapabilityStatement c = new CapabilityStatement();
 		c.getAcceptUnknownElement().addExtension().setUrl("http://foo").setValue(new StringType("AAA"));
 
 		String encoded = ourCtx.newJsonParser().setPrettyPrint(true).encodeResourceToString(c);
@@ -698,12 +699,12 @@ public class JsonParserDstu3Test {
 
 		encoded = ourCtx.newJsonParser().setPrettyPrint(false).encodeResourceToString(c);
 		ourLog.info(encoded);
-		assertEquals(encoded, "{\"resourceType\":\"Conformance\",\"_acceptUnknown\":{\"extension\":[{\"url\":\"http://foo\",\"valueString\":\"AAA\"}]}}");
+		assertEquals(encoded, "{\"resourceType\":\"CapabilityStatement\",\"_acceptUnknown\":{\"extension\":[{\"url\":\"http://foo\",\"valueString\":\"AAA\"}]}}");
 
 		// Now with a value
 		ourLog.info("---------------");
 
-		c = new Conformance();
+		c = new CapabilityStatement();
 		c.getAcceptUnknownElement().setValue(UnknownContentCode.ELEMENTS);
 		c.getAcceptUnknownElement().addExtension().setUrl("http://foo").setValue(new StringType("AAA"));
 
@@ -712,7 +713,7 @@ public class JsonParserDstu3Test {
 
 		encoded = ourCtx.newJsonParser().setPrettyPrint(false).encodeResourceToString(c);
 		ourLog.info(encoded);
-		assertEquals(encoded, "{\"resourceType\":\"Conformance\",\"acceptUnknown\":\"elements\",\"_acceptUnknown\":{\"extension\":[{\"url\":\"http://foo\",\"valueString\":\"AAA\"}]}}");
+		assertEquals(encoded, "{\"resourceType\":\"CapabilityStatement\",\"acceptUnknown\":\"elements\",\"_acceptUnknown\":{\"extension\":[{\"url\":\"http://foo\",\"valueString\":\"AAA\"}]}}");
 
 	}
 
@@ -1475,7 +1476,7 @@ public class JsonParserDstu3Test {
 
 		assertEquals("http://example.com/base/MedicationRequest/3123/_history/1", parsed.getEntry().get(0).getLink("alternate").getUrl());
 		MedicationRequest p = (MedicationRequest) parsed.getEntry().get(0).getResource();
-		assertEquals("Patient/347", p.getPatient().getReference());
+		assertEquals("Patient/347", p.getSubject().getReference());
 		assertEquals("2014-08-16T05:31:17Z", p.getMeta().getLastUpdatedElement().getValueAsString());
 		assertEquals("http://example.com/base/MedicationRequest/3123/_history/1", p.getId());
 
@@ -1549,7 +1550,7 @@ public class JsonParserDstu3Test {
 		assertEquals("http://foo?search", parsed.getEntry().get(0).getRequest().getUrlElement().getValueAsString());
 
 		MedicationRequest p = (MedicationRequest) parsed.getEntry().get(0).getResource();
-		assertEquals("Patient/347", p.getPatient().getReference());
+		assertEquals("Patient/347", p.getSubject().getReference());
 		assertEquals("2014-08-16T05:31:17Z", p.getMeta().getLastUpdatedElement().getValueAsString());
 		assertEquals("http://example.com/base/MedicationRequest/3123/_history/1", p.getId());
 		// assertEquals("3123", p.getId());
@@ -2093,7 +2094,7 @@ public class JsonParserDstu3Test {
 	public void testParseWithWrongTypeObjectShouldBeArray() throws Exception {
 		String input = IOUtils.toString(getClass().getResourceAsStream("/invalid_metadata.json"));
 		try {
-			ourCtx.newJsonParser().parseResource(Conformance.class, input);
+			ourCtx.newJsonParser().parseResource(CapabilityStatement.class, input);
 			fail();
 		} catch (DataFormatException e) {
 			assertEquals("Syntax error parsing JSON FHIR structure: Expected ARRAY at element 'modifierExtension', found 'OBJECT'", e.getMessage());
@@ -2167,6 +2168,72 @@ public class JsonParserDstu3Test {
 
 		ourLog.info(ourCtx.newXmlParser().setPrettyPrint(true).encodeResourceToString(result.toOperationOutcome()));
 		assertTrue(result.isSuccessful());
+	}
+
+	/**
+	 * Test for the url generated based on the server config
+	 */
+	@Test
+	public void testCustomUrlExtension() {
+		final String expected = "{\"resourceType\":\"Patient\",\"extension\":[{\"url\":\"http://www.example.com/petname\",\"valueString\":\"myName\"}]}";
+
+		final MyPatientWithCustomUrlExtension patient = new MyPatientWithCustomUrlExtension();
+		patient.setPetName(new StringType("myName"));
+
+		final IParser jsonParser = ourCtx.newJsonParser();
+		jsonParser.setServerBaseUrl("http://www.example.com");
+
+		final String parsedPatient = jsonParser.encodeResourceToString(patient);
+		System.out.println(parsedPatient);
+		assertEquals(expected, parsedPatient);
+
+		// Parse with string
+		MyPatientWithCustomUrlExtension newPatient = jsonParser.parseResource(MyPatientWithCustomUrlExtension.class, parsedPatient);
+		assertEquals("myName", newPatient.getPetName().getValue());
+
+		// Parse with stream
+		newPatient = jsonParser.parseResource(MyPatientWithCustomUrlExtension.class, new StringReader(parsedPatient));
+		assertEquals("myName", newPatient.getPetName().getValue());
+
+		//Check no NPE if base server not configure
+		newPatient = ourCtx.newJsonParser().parseResource(MyPatientWithCustomUrlExtension.class, new StringReader(parsedPatient));
+		assertNull("myName", newPatient.getPetName());
+		assertEquals("myName", ((StringType) newPatient.getExtensionsByUrl("http://www.example.com/petname").get(0).getValue()).getValue());
+	}
+
+	@Test
+	public void testCustomUrlExtensioninBundle() {
+		final String expected = "{\"resourceType\":\"Bundle\",\"entry\":[{\"resource\":{\"resourceType\":\"Patient\",\"extension\":[{\"url\":\"http://www.example.com/petname\",\"valueString\":\"myName\"}]}}]}";
+
+		final MyPatientWithCustomUrlExtension patient = new MyPatientWithCustomUrlExtension();
+		patient.setPetName(new StringType("myName"));
+
+		final Bundle bundle = new Bundle();
+		final BundleEntryComponent entry = new BundleEntryComponent();
+		entry.setResource(patient);
+		bundle.addEntry(entry);
+
+		final IParser jsonParser = ourCtx.newJsonParser();
+		jsonParser.setServerBaseUrl("http://www.example.com");
+
+		final String parsedBundle = jsonParser.encodeResourceToString(bundle);
+		System.out.println(parsedBundle);
+		assertEquals(expected, parsedBundle);
+
+		// Parse with string
+		Bundle newBundle = jsonParser.parseResource(Bundle.class, parsedBundle);
+		assertNotNull(newBundle);
+		assertEquals(1, newBundle.getEntry().size());
+		Patient newPatient = (Patient) newBundle.getEntry().get(0).getResource();
+		assertEquals("myName", ((StringType) newPatient.getExtensionsByUrl("http://www.example.com/petname").get(0).getValue()).getValue());
+
+		// Parse with stream
+		newBundle = jsonParser.parseResource(Bundle.class, new StringReader(parsedBundle));
+		assertNotNull(newBundle);
+		assertEquals(1, newBundle.getEntry().size());
+		newPatient = (Patient) newBundle.getEntry().get(0).getResource();
+		assertEquals("myName", ((StringType) newPatient.getExtensionsByUrl("http://www.example.com/petname").get(0).getValue()).getValue());
+
 	}
 
 	@AfterClass

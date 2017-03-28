@@ -57,7 +57,7 @@
 		</breadcrumbs>
 		
 		<links>
-			<item name="Blog" href="https://smilecdr.com/blog" />
+			<item name="Support" href="https://smilecdr.com/" />
 			<item name="Download" href="./download.html" />
 			<item name="GitHub Project" href="https://github.com/jamesagnew/hapi-fhir/" />
 		</links>
@@ -86,6 +86,7 @@
 				<item name="Tags" href="./doc_tags.html" />
 				<item name="Validation" href="./doc_validation.html" />
 				<item name="Custom Structures" href="./doc_custom_structures.html" />
+				<item name="Version Converter" href="./doc_converter.html" />
 			</item>
 			<item name="RESTful Client" href="./doc_rest_client.html" >
 				<item name="Fluent/Generic Client" href="./doc_rest_client.html" />

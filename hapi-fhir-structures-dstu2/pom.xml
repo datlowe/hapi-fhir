@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>ca.uhn.hapi.fhir</groupId>
 		<artifactId>hapi-deployable-pom</artifactId>
-		<version>2.3-SNAPSHOT</version>
+		<version>2.4-SNAPSHOT</version>
 		<relativePath>../hapi-deployable-pom/pom.xml</relativePath>
 	</parent>
 
@@ -190,7 +190,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>${argLine} -Dfile.encoding=UTF-8 -Xmx712m</argLine>
+					<argLine>-Dfile.encoding=UTF-8 -Xmx712m</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -297,7 +297,10 @@
 								<baseResourceName>substance</baseResourceName>
 								<baseResourceName>supplydelivery</baseResourceName>
 								<baseResourceName>supplyrequest</baseResourceName>
-								<baseResourceName>supportingdocumentation</baseResourceName>
+								<!--
+									Removed in HAPI 2.4 as this isn't a real resource
+									<baseResourceName>supportingdocumentation</baseResourceName>
+								-->
 								<baseResourceName>test</baseResourceName>
 								<baseResourceName>testscript</baseResourceName>
 								<baseResourceName>user</baseResourceName>

@@ -49,10 +49,11 @@ import ca.uhn.fhir.jpa.dao.DaoConfig;
 import ca.uhn.fhir.jpa.dao.SearchParameterMap;
 import ca.uhn.fhir.jpa.dao.SearchParameterMap.EverythingModeEnum;
 import ca.uhn.fhir.jpa.entity.*;
-import ca.uhn.fhir.jpa.search.StaleSearchDeletingSvc;
+import ca.uhn.fhir.jpa.search.IStaleSearchDeletingSvc;
 import ca.uhn.fhir.model.api.IQueryParameterType;
 import ca.uhn.fhir.model.api.Include;
 import ca.uhn.fhir.model.dstu.valueset.QuantityCompararatorEnum;
+import ca.uhn.fhir.parser.StrictErrorHandler;
 import ca.uhn.fhir.rest.api.SortOrderEnum;
 import ca.uhn.fhir.rest.api.SortSpec;
 import ca.uhn.fhir.rest.param.*;
@@ -132,6 +133,8 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 	 */
 	@Test
 	public void testEverythingWithLargeSet() throws Exception {
+		myFhirCtx.setParserErrorHandler(new StrictErrorHandler());
+		
 		String inputString = IOUtils.toString(getClass().getResourceAsStream("/david_big_bundle.json"), StandardCharsets.UTF_8);
 		Bundle inputBundle = myFhirCtx.newJsonParser().parseResource(Bundle.class, inputString);
 		inputBundle.setType(BundleType.TRANSACTION);
@@ -213,7 +216,7 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 		IIdType patId2 = myPatientDao.create(pat2, mySrd).getId().toUnqualifiedVersionless();
 
 		MedicationRequest mo = new MedicationRequest();
-		mo.getPatient().setReferenceElement(patId);
+		mo.getSubject().setReferenceElement(patId);
 		mo.setMedication(new Reference(medId));
 		IIdType moId = myMedicationRequestDao.create(mo, mySrd).getId().toUnqualifiedVersionless();
 		
@@ -298,20 +301,20 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 		pract2.addName().setFamily("SOME PRACT2");
 		myPractitionerDao.update(pract2, mySrd);
 		
-		DiagnosticRequest res = new DiagnosticRequest();
+		ProcedureRequest res = new ProcedureRequest();
 		res.addReplaces(new Reference("Practitioner/somepract"));
 		res.addReplaces(new Reference("Practitioner/somepract"));
 		res.addReplaces(new Reference("Practitioner/somepract2"));
 		res.addReplaces(new Reference("Practitioner/somepract2"));
 		
-		IIdType id = myDiagnosticRequestDao.create(res, mySrd).getId().toUnqualifiedVersionless();
+		IIdType id = myProcedureRequestDao.create(res, mySrd).getId().toUnqualifiedVersionless();
 		
 		Class<ResourceLink> type = ResourceLink.class;
 		List<?> results = myEntityManager.createQuery("SELECT i FROM " + type.getSimpleName() + " i", type).getResultList();
 		ourLog.info(toStringMultiline(results));
 		assertEquals(2, results.size());
 		
-		List<IIdType> actual = toUnqualifiedVersionlessIds(myDiagnosticRequestDao.search(DiagnosticRequest.SP_REPLACES, new ReferenceParam("Practitioner/somepract")));
+		List<IIdType> actual = toUnqualifiedVersionlessIds(myProcedureRequestDao.search(ProcedureRequest.SP_REPLACES, new ReferenceParam("Practitioner/somepract")));
 		assertThat(actual, contains(id));
 	}
 	
@@ -1510,7 +1513,7 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 	}
 	
 	@Autowired
-	protected StaleSearchDeletingSvc myStaleSearchDeletingSvc;
+	protected IStaleSearchDeletingSvc myStaleSearchDeletingSvc;
 	
 
 	@Test
@@ -1539,7 +1542,7 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 		assertThat(toUnqualifiedVersionlessIds(bundleProvider), containsInAnyOrder(pid1, pid2));
 
 		myDaoConfig.setExpireSearchResults(false);
-		myStaleSearchDeletingSvc.pollForStaleSearches();
+		myStaleSearchDeletingSvc.pollForStaleSearchesAndDeleteThem();
 		Thread.sleep(1500);
 		
 		assertThat(toUnqualifiedVersionlessIds(bundleProvider), (containsInAnyOrder(pid1, pid2)));
@@ -1572,7 +1575,7 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 		Thread.sleep(1500);
 		
 		myDaoConfig.setExpireSearchResultsAfterMillis(500);
-		myStaleSearchDeletingSvc.pollForStaleSearches();
+		myStaleSearchDeletingSvc.pollForStaleSearchesAndDeleteThem();
 		
 		assertThat(toUnqualifiedVersionlessIds(bundleProvider), not(containsInAnyOrder(pid1, pid2)));
 	}
@@ -1910,7 +1913,7 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 			// Irrelevant include
 			SearchParameterMap params = new SearchParameterMap();
 			params.add(Patient.SP_FAMILY, new StringParam("Tester_" + methodName + "_P1"));
-			params.addInclude(Encounter.INCLUDE_INDICATION);
+			params.addInclude(Encounter.INCLUDE_EPISODEOFCARE);
 			IBundleProvider search = myPatientDao.search(params);
 			List<IBaseResource> patients = toList(search);
 			assertEquals(1, patients.size());
@@ -2586,6 +2589,8 @@ public class FhirResourceDaoDstu3SearchNoFtTest extends BaseJpaDstu3Test {
 	
 	@Test
 	public void testSearchWithUriParamBelow() throws Exception {
+		myFhirCtx.setParserErrorHandler(new StrictErrorHandler());
+		
 		Class<ValueSet> type = ValueSet.class;
 		String resourceName = "/valueset-dstu2.json";
 		ValueSet vs = loadResourceFromClasspath(type, resourceName);

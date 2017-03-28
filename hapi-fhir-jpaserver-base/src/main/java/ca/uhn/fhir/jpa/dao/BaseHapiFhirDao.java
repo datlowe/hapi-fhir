@@ -249,7 +249,7 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void extractResourceLinks(ResourceTable theEntity, IBaseResource theResource, Set<ResourceLink> theLinks) {
+	protected void extractResourceLinks(ResourceTable theEntity, IBaseResource theResource, Set<ResourceLink> theLinks, Date theUpdateTime) {
 
 		/*
 		 * For now we don't try to load any of the links in a bundle if it's the actual bundle we're storing..
@@ -326,7 +326,8 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 						String msg = getContext().getLocalizer().getMessage(BaseHapiFhirDao.class, "externalReferenceNotAllowed", nextId.getValue());
 						throw new InvalidRequestException(msg);
 					} else {
-						if (theLinks.add(new ResourceLink(nextPathAndRef.getPath(), theEntity, nextId))) {
+						ResourceLink resourceLink = new ResourceLink(nextPathAndRef.getPath(), theEntity, nextId, theUpdateTime);
+						if (theLinks.add(resourceLink)) {
 							ourLog.info("Indexing remote resource reference URL: {}", nextId);
 						}
 						continue;
@@ -374,7 +375,8 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 					continue;
 				}
 
-				theLinks.add(new ResourceLink(nextPathAndRef.getPath(), theEntity, target));
+				ResourceLink resourceLink = new ResourceLink(nextPathAndRef.getPath(), theEntity, target, theUpdateTime);
+				theLinks.add(resourceLink);
 			}
 
 		}
@@ -386,11 +388,6 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 	protected Set<ResourceIndexedSearchParamCoords> extractSearchParamCoords(ResourceTable theEntity, IBaseResource theResource) {
 		return mySearchParamExtractor.extractSearchParamCoords(theEntity, theResource);
 	}
-
-	// @Override
-	// public void setResourceDaos(List<IFhirResourceDao<?>> theResourceDaos) {
-	// myResourceDaos = theResourceDaos;
-	// }
 
 	protected Set<ResourceIndexedSearchParamDate> extractSearchParamDates(ResourceTable theEntity, IBaseResource theResource) {
 		return mySearchParamExtractor.extractSearchParamDates(theEntity, theResource);
@@ -1064,7 +1061,7 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 			b.append(" (pid ");
 			b.append(theEntity.getId());
 			b.append(", version ");
-			b.append(myContext.getVersion().getVersion());
+			b.append(theEntity.getFhirVersion().name());
 			b.append("): ");
 			b.append(e.getMessage());
 			String msg = b.toString();
@@ -1218,6 +1215,14 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 					}
 				}
 
+				setUpdatedTime(stringParams, theUpdateTime);
+				setUpdatedTime(numberParams, theUpdateTime);
+				setUpdatedTime(quantityParams, theUpdateTime);
+				setUpdatedTime(dateParams, theUpdateTime);
+				setUpdatedTime(uriParams, theUpdateTime);
+				setUpdatedTime(coordsParams, theUpdateTime);
+				setUpdatedTime(tokenParams, theUpdateTime);
+				
 				/*
 				 * Handle references within the resource that are match URLs, for example references like "Patient?identifier=foo". These match URLs are resolved and replaced with the ID of the
 				 * matching
@@ -1269,7 +1274,7 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 				}
 
 				links = new HashSet<ResourceLink>();
-				extractResourceLinks(theEntity, theResource, links);
+				extractResourceLinks(theEntity, theResource, links, theUpdateTime);
 
 				/*
 				 * If the existing resource already has links and those match links we still want, use them instead of removing them and re adding them
@@ -1426,6 +1431,12 @@ public abstract class BaseHapiFhirDao<T extends IBaseResource> implements IDao {
 		}
 
 		return theEntity;
+	}
+
+	private void setUpdatedTime(Collection<? extends BaseResourceIndexedSearchParam> theParams, Date theUpdateTime) {
+		for (BaseResourceIndexedSearchParam nextSearchParam : theParams) {
+			nextSearchParam.setUpdated(theUpdateTime);
+		}
 	}
 
 	protected ResourceTable updateEntity(IBaseResource theResource, ResourceTable entity, Date theDeletedTimestampOrNull, Date theUpdateTime) {

@@ -36,10 +36,11 @@ import ca.uhn.fhir.jpa.dao.dstu2.FhirResourceDaoDstu2SearchNoFtTest;
 import ca.uhn.fhir.jpa.entity.ResourceIndexedSearchParamString;
 import ca.uhn.fhir.jpa.entity.ResourceTable;
 import ca.uhn.fhir.jpa.provider.dstu3.JpaSystemProviderDstu3;
-import ca.uhn.fhir.jpa.search.StaleSearchDeletingSvc;
+import ca.uhn.fhir.jpa.search.IStaleSearchDeletingSvc;
 import ca.uhn.fhir.jpa.term.IHapiTerminologySvc;
 import ca.uhn.fhir.jpa.validation.JpaValidationSupportChainDstu3;
 import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.parser.StrictErrorHandler;
 import ca.uhn.fhir.rest.method.MethodUtil;
 import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
 import ca.uhn.fhir.util.TestUtil;
@@ -79,6 +80,9 @@ public abstract class BaseJpaDstu3Test extends BaseJpaTest {
 	@Qualifier("myCarePlanDaoDstu3")
 	protected IFhirResourceDao<CarePlan> myCarePlanDao;
 	@Autowired
+	@Qualifier("myProcedureRequestDaoDstu3")
+	protected IFhirResourceDao<ProcedureRequest> myProcedureRequestDao;
+	@Autowired
 	@Qualifier("myCodeSystemDaoDstu3")
 	protected IFhirResourceDaoCodeSystem<CodeSystem, Coding, CodeableConcept> myCodeSystemDao;
 	@Autowired
@@ -95,9 +99,6 @@ public abstract class BaseJpaDstu3Test extends BaseJpaTest {
 	@Autowired
 	@Qualifier("myDeviceDaoDstu3")
 	protected IFhirResourceDao<Device> myDeviceDao;
-	@Autowired
-	@Qualifier("myDiagnosticRequestDaoDstu3")
-	protected IFhirResourceDao<DiagnosticRequest> myDiagnosticRequestDao;
 	@Autowired
 	@Qualifier("myDiagnosticReportDaoDstu3")
 	protected IFhirResourceDao<DiagnosticReport> myDiagnosticReportDao;
@@ -162,7 +163,7 @@ public abstract class BaseJpaDstu3Test extends BaseJpaTest {
 	@Autowired
 	protected IFulltextSearchSvc mySearchDao;
 	@Autowired
-	protected StaleSearchDeletingSvc myStaleSearchDeletingSvc;
+	protected IStaleSearchDeletingSvc myStaleSearchDeletingSvc;
 	@Autowired
 	@Qualifier("myStructureDefinitionDaoDstu3")
 	protected IFhirResourceDao<StructureDefinition> myStructureDefinitionDao;
@@ -225,6 +226,7 @@ public abstract class BaseJpaDstu3Test extends BaseJpaTest {
 		myDaoConfig.setHardSearchLimit(1000);
 		myDaoConfig.setHardTagListLimit(1000);
 		myDaoConfig.setIncludeLimit(2000);
+		myFhirCtx.setParserErrorHandler(new StrictErrorHandler());
 	}
 
 	@Override

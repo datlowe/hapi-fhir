@@ -77,6 +77,7 @@ import ca.uhn.fhir.model.api.TagList;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.rest.server.Constants;
 import ca.uhn.fhir.rest.server.exceptions.InternalErrorException;
+import ca.uhn.fhir.util.UrlUtil;
 
 public abstract class BaseParser implements IParser {
 
@@ -851,7 +852,17 @@ public abstract class BaseParser implements IParser {
 
 	@Override
 	public void setPreferTypes(List<Class<? extends IBaseResource>> thePreferTypes) {
-		myPreferTypes = thePreferTypes;
+		if (thePreferTypes != null) {
+			ArrayList<Class<? extends IBaseResource>> types = new ArrayList<Class<? extends IBaseResource>>();
+			for (Class<? extends IBaseResource> next : thePreferTypes) {
+				if (Modifier.isAbstract(next.getModifiers()) == false) {
+					types.add(next);
+				}
+			}
+			myPreferTypes = Collections.unmodifiableList(types);
+		} else {
+			myPreferTypes = thePreferTypes;
+		}
 	}
 
 	@Override
@@ -927,6 +938,18 @@ public abstract class BaseParser implements IParser {
 		return retVal;
 	}
 
+	protected String getExtensionUrl(final String extensionUrl) {
+		String url = extensionUrl;
+		if (StringUtils.isNotBlank(extensionUrl) && StringUtils.isNotBlank(myServerBaseUrl)) {
+			url = !UrlUtil.isValid(extensionUrl) && extensionUrl.startsWith("/") ? myServerBaseUrl + extensionUrl : extensionUrl;
+		}
+		return url;
+	}
+
+  protected String getServerBaseUrl() {
+		return  myServerBaseUrl;
+	}
+  
 	/**
 	 * Used for DSTU2 only
 	 */

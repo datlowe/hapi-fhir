@@ -2031,7 +2031,6 @@ public class FhirResourceDaoDstu3Test extends BaseJpaDstu3Test {
 				"  \"identifier\":[\n" + 
 				"     {\n" + 
 				"       \"use\":\"official\",\n" + 
-				"       \"label\":\"HSP 2.16.840.1.113883.3.239.23.21\",\n" + 
 				"       \"system\":\"urn:cgta:hsp_ids\",\n" + 
 				"       \"value\":\"urn:oid:2.16.840.1.113883.3.239.23.21\"\n" + 
 				"     }\n" + 
@@ -3312,15 +3311,15 @@ public class FhirResourceDaoDstu3Test extends BaseJpaDstu3Test {
 		SearchParameterMap params;
 		
 		params = new SearchParameterMap();
-		params.add(CarePlan.SP_ACTIVITYDATE, new DateRangeParam("2010-01-01T10:00:00Z", null));
+		params.add(CarePlan.SP_ACTIVITY_DATE, new DateRangeParam("2010-01-01T10:00:00Z", null));
 		assertThat(toUnqualifiedVersionlessIdValues(myCarePlanDao.search(params)), contains(id.getValue()));
 
 		params = new SearchParameterMap();
-		params.add(CarePlan.SP_ACTIVITYDATE, new DateRangeParam("2011-01-01T10:00:00Z", null));
+		params.add(CarePlan.SP_ACTIVITY_DATE, new DateRangeParam("2011-01-01T10:00:00Z", null));
 		assertThat(toUnqualifiedVersionlessIdValues(myCarePlanDao.search(params)), contains(id.getValue()));
 		
 		params = new SearchParameterMap();
-		params.add(CarePlan.SP_ACTIVITYDATE, new DateRangeParam("2012-01-01T10:00:00Z", null));
+		params.add(CarePlan.SP_ACTIVITY_DATE, new DateRangeParam("2012-01-01T10:00:00Z", null));
 		assertThat(toUnqualifiedVersionlessIdValues(myCarePlanDao.search(params)), empty());
 	}
 
@@ -3332,7 +3331,7 @@ public class FhirResourceDaoDstu3Test extends BaseJpaDstu3Test {
 
 		Organization org = new Organization();
 		org.getNameElement().setValue("testTokenParamWhichIsTooLong");
-		org.getType().addCoding().setSystem(longStr1).setCode(longStr2);
+		org.addType().addCoding().setSystem(longStr1).setCode(longStr2);
 
 		String subStr1 = longStr1.substring(0, ResourceIndexedSearchParamString.MAX_LENGTH);
 		String subStr2 = longStr2.substring(0, ResourceIndexedSearchParamString.MAX_LENGTH);

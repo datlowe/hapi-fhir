@@ -6,7 +6,28 @@
 		<title>HAPI FHIR Changelog</title>
 	</properties>
 	<body>
-		<release version="2.3" date="TBD">
+		<release version="2.4" date="">
+			<action type="add" issue="602">
+				hapi-fhir-jpaserver-example now includes the 
+				<![CDATA[<code>Prefer</code>]]> header in the list of 
+				CORS headers. Thanks to GitHub user @elnin0815 for
+				the pull request!
+			</action>
+			<action type="add">
+				AuthorizationInterceptor can now allow make read or write 
+				authorization decisions on a resource by instance ID
+			</action>
+			<action type="fix" issue="208">
+				Remove SupportingDocumentation resource from DSTU2 structures. This isn't
+				actually a resource in FHIR DSTU2 and its inclusion causes errors on clients
+				that don't understand what it is. Thanks to Travis Cummings and Michele Mottini for pointing this out.
+			</action>
+			<action type="fix" issue="607">
+				Web testing UI displayed an error when a transaction was pasted into the UI
+				for a DSTU2 server. Thanks to Suresh Kumar for reporting!
+			</action>
+		</release>
+		<release version="2.3" date="2017-03-18">
 			<action type="add">
 				Bump the version of a few dependencies to the
 				latest versions (dependent HAPI modules listed in brackets):
@@ -156,6 +177,56 @@
 				JPA validator incorrectly returned an HTTP 400 instead of an HTTP 422 when
 				the resource ID was not present and required, or vice versa. Thanks to 
 				Brian Postlethwaite for reporting!
+			</action>
+			<action type="fix">
+				When using an annotation based client, a ClassCastException would 
+				occur under certain circumstances when the response contained
+				contained resources
+			</action>
+			<action type="fix">
+				JPA server interceptor methods for create/update/delete provided
+				the wrong version ID to the interceptors
+			</action>
+			<action type="add">
+				A post-processing hook for subclasses of BaseValidatingInterceptor is now available.
+			</action>
+			<action type="add" issue="585">
+				AuthorizationInterceptor can now authorize (allow/deny) extended operations
+				on instances and types by wildcard (on any type, or on any instance)
+			</action>
+			<action type="add" issue="595">
+				When RequestValidatingInterceptor is used, the validation results
+				are now populated into the OperationOutcome produced by
+				create and update operations
+			</action>
+			<action type="add" issue="542">
+				Add support for the $process-message operation to fluent client.
+				Thanks to Hugo Soares for the pull request!
+			</action>
+			<action type="add" issue="543">
+				Parser can now be configured when encoding to use a specific
+				base URL for extensions. Thanks to Sebastien Riviere for the 
+				pull request!
+			</action>
+			<action type="fix" issue="568">
+				Correct the resource paths for the DSTU2.1 validation resources,
+				allowing the validator to correctly work against those structures.
+				Thanks to Michael Lawley for the pull request!
+			</action>
+			<action type="fix" issue="551">
+				XML Parser failed to parse large field values (greater than 512 Kb)
+				on certain platforms where the StAX parser was overridden. Thanks to
+				GitHub user @Jodue for the pull request!
+			</action>
+			<action type="add" issue="575">
+				Remove an unneccesary database flush when saving large code systems to
+				the JPA database, improving performance of this operation. Thanks to
+				Joel Schneider for the pull request and analysis!
+			</action>
+			<action type="add">
+				A new post-processing hook for subclasses of BaseValidatingInterceptor is now
+				available. The hook exposes the request details on validation failure prior to throwing an
+				UnprocessableEntityException.
 			</action>
 		</release>
 		<release version="2.2" date="2016-12-20">
