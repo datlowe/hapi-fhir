@@ -11,7 +11,7 @@ import java.sql.Types;
 
 import org.hibernate.HibernateException;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 public class JsonOrTextUserType implements UserType {
@@ -42,18 +42,18 @@ public class JsonOrTextUserType implements UserType {
 	}
 
 	@Override
-	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
+	public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner)
 			throws HibernateException, SQLException 
 	{
 		return rs.getString(names[0]);
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session) 
+	public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) 
 			throws HibernateException, SQLException 
 	{
 		
-		Dialect d = session.getFactory().getDialect();
+		Dialect d = session.getJdbcServices().getDialect();
 		
 		int sqlType = Types.VARCHAR;
 		
