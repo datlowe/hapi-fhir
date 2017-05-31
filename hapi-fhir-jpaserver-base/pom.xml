@@ -4,12 +4,11 @@
 	<parent>
 		<groupId>ca.uhn.hapi.fhir</groupId>
 		<artifactId>hapi-deployable-pom</artifactId>
-		<version>2.4-SNAPSHOT</version>
+		<version>2.4</version>
 		<relativePath>../hapi-deployable-pom/pom.xml</relativePath>
 	</parent>
 
 	<groupId>cz.datlowe</groupId>
-	<version>2.4-SNAPSHOT</version>
 	<artifactId>hapi-fhir-jpaserver-base</artifactId>
 	<packaging>jar</packaging>
 
@@ -385,7 +384,7 @@
 							<outputFile>${project.build.directory}/classes/ca/uhn/hapi/fhir/jpa/docs/database/persistence_create_postgres94.sql</outputFile>	
 						</configuration>
 					</execution>
-					<!-- 
+					<!--
 					<execution>
 						<id>mysql57</id>
 						<phase>process-classes</phase>
@@ -419,7 +418,7 @@
 							<outputFile>${project.build.directory}/classes/ca/uhn/hapi/fhir/jpa/docs/database/persistence_create_sqlserver2012.sql</outputFile>	
 						</configuration>
 					</execution>
- 					-->					
+					-->
 				</executions>
 			</plugin>
 			<plugin>

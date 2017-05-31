@@ -6,7 +6,30 @@
 		<title>HAPI FHIR Changelog</title>
 	</properties>
 	<body>
-		<release version="2.4" date="">
+		<release version="2.4" date="2017-04-19">
+			<action type="add">
+				This release brings the DSTU3 structures up to FHIR R3 (FHIR 3.0.1) definitions. Note that
+				there are very few changes between the DSTU3 structures in HAPI FHIR 2.3 and
+				the ones in HAPI FHIR 2.4 since the basis for the DSTU3 structures in HAPI FHIR
+				2.3 was the R3 QA FHIR version (1.9.0) but this is the first release of 
+				HAPI FHIR to support the final/complete R3 release.
+			</action>
+			<action type="add">
+				Bump the version of a few dependencies to the
+				latest versions (dependent HAPI modules listed in brackets):
+				<![CDATA[
+					<ul>
+						<li>Hibernate (JPA): 5.2.7 -&gt; 5.2.9</li>
+						<li>Hibernate Search (JPA): 5.5.7.CR1 -&gtp; 5.2.7.Final</li>
+						<li>Hibernate Validator (JPA): 5.3.4 -&gtp; 5.4.1</li>
+						<li>Spring (JPA): 4.3.6 -&gt; 4.3.7</li>
+						<li>Gson (Core): 2.7 -&gt; 2.8.0</li>
+						<li>Guava (JPA): 19.0 -&gt; 21.0</li>
+						<li>SLF4j (Core): 1.7.21 -&gt; 1.7.25</li>
+						<li>Logback (Core): 1.1.7 -&gt; 1.2.2</li>
+					</ul>
+				]]>
+			</action>
 			<action type="add" issue="602">
 				hapi-fhir-jpaserver-example now includes the 
 				<![CDATA[<code>Prefer</code>]]> header in the list of 
@@ -25,6 +48,64 @@
 			<action type="fix" issue="607">
 				Web testing UI displayed an error when a transaction was pasted into the UI
 				for a DSTU2 server. Thanks to Suresh Kumar for reporting!
+			</action>
+			<action type="add">
+				DaoConfig#setAllowInlineMatchUrlReferences() now defaults to
+				<![CDATA[<code>true</code>]]> since inline conditional references
+				are now a part of the FHIR specification. Thanks to Jan Dědek for
+				pointing this out!
+			</action>
+			<action type="add" issue="609">
+				hapi-fhir-jpaserver-base now exposes a
+				<![CDATA[<code>FhirInstanceValidator</code> bean named <code>"myInstanceValidatorDstu2"</code>]]>
+				for DSTU2. A similar bean for DSTU3 was previously implemented.
+			</action>
+			<action type="add" issue="453">
+				hapi-fhir-jpaserver-example project now defaults to STU3 mode instead of
+				the previous DSTU2. Thanks to Joel Schneider for the pull request!
+			</action>
+			<action type="add" issue="534">
+				JPA server now has a setting on the DaoConfig to force it to treat
+				certain reference URLs or reference URL patterns as logical URLs instead
+				of literal ones, meaning that the server will not try to resolve these
+				URLs. Thanks to Eeva Turkka for the suggestion!
+			</action>
+			<action type="add">
+				Add a utility method to JPA server: 
+				<![CDATA[<code>IFhirResourceDao#removeTag(IIdType, TagTypeEnum, String, String)</code>]]>. This allows client code to remove tags
+				from a resource without having a servlet request object in context.
+			</action>
+			<action type="fix">
+				JPA server was unable to process custom search parameters where
+				the path pointed to an extension containing a reference. Thanks
+				to Ravi Kuchi for reporting!
+			</action>
+			<action type="fix" issue="623">
+				Servers in DSTU2.1 mode were incorrectly using the legacy mimetypes instead
+				of the new STU3 ones. Thanks to Michael Lawley for the pull request!
+			</action>
+			<action type="add" issue="624">
+				Add an option to ParserOptions that specifies that when parsing a bundle, the
+				ID found in the Bundle.entry.fullUrl should not override the ID found
+				in the Resource.id field. Technically these fields must always supply the
+				same ID in order for a server to be considered conformant, but this option allows
+				you to deal with servers which are behaving badly. Thanks to
+				GitHub user CarthageKing for the pul request!
+			</action>
+			<action type="fix" issue="617">
+				Remove unneccesary whitespace in the text areas on the testing
+				web UI. Thanks to GitHub user @elnin0815 for the pull request!
+			</action>
+			<action type="add" issue="613">
+				In JAX-RS server it is now possible to change the server exception handler
+				at runtime without a server restart.
+				Thanks to Sebastien Riviere for the 
+				pull request!
+			</action>
+			<action type="fix" issue="610">
+				Fix a potential race condition when the FhirContext is being accessed by many threads
+				at the same time right as it is initializing. Thanks to Ben Spencer for the
+				pull request!
 			</action>
 		</release>
 		<release version="2.3" date="2017-03-18">

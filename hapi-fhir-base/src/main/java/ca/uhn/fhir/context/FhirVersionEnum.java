@@ -28,7 +28,7 @@ public enum FhirVersionEnum {
 	/*
 	 * ***********************
 	 * Don't auto-sort this type!!!
-	 * 
+	 *
 	 * Or more accurately, entries should be sorted from OLDEST FHIR release
 	 * to NEWEST FHIR release instead of alphabetically
 	 * ***********************
@@ -87,11 +87,11 @@ public enum FhirVersionEnum {
 	}
 
 	public boolean isNewerThan(FhirVersionEnum theVersion) {
-		return ordinal() > theVersion.ordinal();
+		return !isEquivalentTo(theVersion) && ordinal() > theVersion.ordinal();
 	}
 
 	public boolean isOlderThan(FhirVersionEnum theVersion) {
-		return ordinal() < theVersion.ordinal();
+		return !isEquivalentTo(theVersion) && ordinal() < theVersion.ordinal();
 	}
 
 	/**

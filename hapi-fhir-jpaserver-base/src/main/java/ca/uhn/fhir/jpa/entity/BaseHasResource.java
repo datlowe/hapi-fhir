@@ -28,7 +28,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -67,15 +66,10 @@ public abstract class BaseHasResource {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "RES_PUBLISHED", nullable = false)
 	private Date myPublished;
-	
-	
 
 	@Column(name = "RES_TEXT", length = Integer.MAX_VALUE - 1, nullable = false)
-	@Type(type = "json_or_string")
+	@Type(type = "json_or_string")	
 	private String myResource;
-	
-	
-	
 
 	@Column(name = "RES_TITLE", nullable = true, length = MAX_TITLE_LENGTH)
 	private String myTitle;
