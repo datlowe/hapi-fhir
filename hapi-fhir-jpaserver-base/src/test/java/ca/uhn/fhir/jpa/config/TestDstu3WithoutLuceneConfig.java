@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import ca.uhn.fhir.jpa.dao.FulltextSearchSvcImpl;
 import ca.uhn.fhir.jpa.dao.IFulltextSearchSvc;
 
+import ca.uhn.fhir.jpa.json.DerbyTenSevenDialectJson;
+
+
 @Configuration
 @EnableTransactionManagement()
 public class TestDstu3WithoutLuceneConfig extends TestDstu3Config {
@@ -40,7 +43,7 @@ public class TestDstu3WithoutLuceneConfig extends TestDstu3Config {
 		extraProperties.put("hibernate.format_sql", "false");
 		extraProperties.put("hibernate.show_sql", "false");
 		extraProperties.put("hibernate.hbm2ddl.auto", "update");
-		extraProperties.put("hibernate.dialect", "org.hibernate.dialect.DerbyTenSevenDialect");
+		extraProperties.put("hibernate.dialect", DerbyTenSevenDialectJson.class.getName());
 		extraProperties.put("hibernate.search.autoregister_listeners", "false");
 		return extraProperties;
 	}

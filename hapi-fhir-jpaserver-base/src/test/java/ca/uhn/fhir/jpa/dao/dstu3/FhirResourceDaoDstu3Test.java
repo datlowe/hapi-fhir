@@ -371,8 +371,7 @@ public class FhirResourceDaoDstu3Test extends BaseJpaDstu3Test {
 				ResourceTable table = myResourceTableDao.findOne(id.getIdPartAsLong());
 				String newContent = myFhirCtx.newJsonParser().encodeResourceToString(p);
 				newContent = newContent.replace("male", "foo");
-				table.setResource(newContent.getBytes(Charsets.UTF_8));
-				table.setEncoding(ResourceEncodingEnum.JSON);
+				table.setResource(newContent);
 				myResourceTableDao.save(table);
 			}
 		});
