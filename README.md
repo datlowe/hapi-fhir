@@ -1,7 +1,7 @@
 datlowe fork of hapi-fhir
 =========
 
-mainly for JPA server modifiaction - using JSONB postgres colument for resouce text
+Mainly for JPA server modifiaction - using JSONB postgres column type for resouce text
 
 
 
