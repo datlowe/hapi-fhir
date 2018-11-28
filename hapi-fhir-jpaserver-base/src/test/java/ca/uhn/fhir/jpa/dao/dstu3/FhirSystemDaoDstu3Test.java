@@ -1336,6 +1336,14 @@ public class FhirSystemDaoDstu3Test extends BaseJpaDstu3SystemTest {
 		assertEquals("201 Created", resp.getEntry().get(0).getResponse().getStatus());
 		assertEquals("201 Created", resp.getEntry().get(1).getResponse().getStatus());
 	}
+	
+	@Test
+	public void testTransactionFromBundleConcurrent() throws Exception {
+		
+		new FhirSystemDaoDstu3TestConcurrentUtils(mySystemDao, mySrd)
+			.doTest();
+
+	}
 
 	@Test
 	public void testTransactionOrdering() {
