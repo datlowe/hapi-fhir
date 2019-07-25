@@ -20,7 +20,7 @@ public class FhirSystemDaoDstu3TestConcurrentUtils {
 	private final IFhirSystemDao<Bundle, Meta> mySystemDao;
 	private final ServletRequestDetails mySrd;
 	
-	private final List<Exception> thrown = Collections.synchronizedList(new ArrayList<>());
+	private final List<Exception> thrown = Collections.synchronizedList(new ArrayList<Exception>());
 
 	public FhirSystemDaoDstu3TestConcurrentUtils(
 			IFhirSystemDao<Bundle, Meta> mySystemDao,

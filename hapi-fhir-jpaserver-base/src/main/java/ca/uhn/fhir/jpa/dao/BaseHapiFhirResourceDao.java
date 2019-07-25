@@ -29,6 +29,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.dstu3.model.IdType;
 import org.hl7.fhir.instance.model.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -766,6 +767,36 @@ public abstract class BaseHapiFhirResourceDao<T extends IBaseResource> extends B
 		// nothing by default
 	}
 
+	private boolean isIdPartValid(String id) {
+		if (StringUtils.isBlank(id)) {
+			return false;
+		}
+		//dedek
+		/*
+		if (id.length() > 64) {
+			return false;
+		}
+		 */
+		for (int i = 0; i < id.length(); i++) {
+			char nextChar = id.charAt(i);
+			if (nextChar >= 'a' && nextChar <= 'z') {
+				continue;
+			}
+			if (nextChar >= 'A' && nextChar <= 'Z') {
+				continue;
+			}
+			if (nextChar >= '0' && nextChar <= '9') {
+				continue;
+			}
+			if (nextChar == '-' || nextChar == '.') {
+				continue;
+			}
+			return false;
+		}
+		return true;
+	}
+
+
 	/**
 	 * May be overridden by subclasses to validate resources prior to storage
 	 * 
@@ -778,11 +809,13 @@ public abstract class BaseHapiFhirResourceDao<T extends IBaseResource> extends B
 			throw new InvalidRequestException(getContext().getLocalizer().getMessage(BaseHapiFhirResourceDao.class, "incorrectResourceType", type, getResourceName()));
 		}
 
+		//Dedek updated - we are not validating ids length, let it on the DB
 		if (theResource.getIdElement().hasIdPart()) {
-			if (!theResource.getIdElement().isIdPartValid()) {
+			if (!isIdPartValid(theResource.getIdElement().getIdPart())) {
 				throw new InvalidRequestException(getContext().getLocalizer().getMessage(BaseHapiFhirResourceDao.class, "failedToCreateWithInvalidId", theResource.getIdElement().getIdPart()));
 			}
 		}
+
 
 		/*
 		 * Replace absolute references with relative ones if configured to do so
